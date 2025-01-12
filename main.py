@@ -1,8 +1,8 @@
 from src import data_loading
 from src import preprocessing
 from src import feature_engenieering
-
-
+from src import modeling
+from src import evaluation
 
 #files path for the raw dataset:
 data_files = ['./data/people.csv','./data/descriptions.csv','./data/salary.csv',]
@@ -20,13 +20,16 @@ X_train, X_test, y_train, y_test = feature_engenieering.split_data(cleansed_data
 #normalize and scale the datasets using MinMaxScaler and target encoder
 
 normalized_X_train, te, scaler = feature_engenieering.normalize_train_data(X_train, y_train)
-print(te, scaler)
 
 normalized_X_test = feature_engenieering.normalize_test_data(X_test, te, scaler)
 
-# Separate features and target variable
+#train the model using a random forest regressor algorithm and print out the predictions for the normalized test data.
+
+model = modeling.train_model(normalized_X_train, y_train)
+
+#use the test dataset to predict salaries based on the trained model.
 
 
 
-print(normalized_X_train)
-print(normalized_X_test)
+
+print(evaluation.evaluate_model(normalized_X_test, y_test, model))

@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from typing import List
-from src import infer_missing_values_in_dataframe
+from src import llm_dataset_filler 
 import asyncio
 
 
@@ -27,7 +27,7 @@ def preprocess(full_dataset:pd.DataFrame)->pd.DataFrame:
     print(missing_rows)
 
     #use an LLM to infer missing values form description column.
-    df = asyncio.run(infer_missing_values_in_dataframe(full_dataset))
+    df = asyncio.run(llm_dataset_filler.infer_missing_values_in_dataframe(full_dataset))
     print("\nMissing Values in Full Dataset:")
 
     #print Rows that cant be infered and cleanse them
