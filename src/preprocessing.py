@@ -7,7 +7,7 @@ import asyncio
 
 
 
-def preprocess(full_dataset:pd.DataFrame)->pd.DataFrame:
+async def preprocess(full_dataset:pd.DataFrame)->pd.DataFrame:
 
     #prints to check dataset merge
     print("\nFull Merged Dataset:")
@@ -27,7 +27,7 @@ def preprocess(full_dataset:pd.DataFrame)->pd.DataFrame:
     print(missing_rows)
 
     #use an LLM to infer missing values form description column.
-    df = asyncio.run(llm_dataset_filler.infer_missing_values_in_dataframe(full_dataset))
+    full_dataset = await llm_dataset_filler.infer_missing_values_in_dataframe(full_dataset)
     print("\nMissing Values in Full Dataset:")
 
     #print Rows that cant be infered and cleanse them

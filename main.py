@@ -32,4 +32,4 @@ model = modeling.train_model(normalized_X_train, y_train)
 
 
 
-print(evaluation.evaluate_model(normalized_X_test, y_test, model))
+print(evaluation.evaluate_model(normalized_X_test, y_test, normalized_X_train,y_train, model))

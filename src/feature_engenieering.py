@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import KFold ,train_test_split
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 import category_encoders as ce
 
 
@@ -36,6 +36,8 @@ def normalize_train_data(X_train: pd.DataFrame, y_train: pd.Series)-> tuple[pd.D
     X_train['Gender'] = X_train['Gender'].map(gender_mapping)
     if X_train['Gender'].isnull().any():
         X_train['Gender'] = X_train['Gender'].fillna(X_train['Gender'].mode()[0])
+        
+    #X_train = X_train.drop("Gender", axis=1)
 
     # 2. Encode 'Education Level'
     education_order = {
@@ -63,7 +65,7 @@ def normalize_train_data(X_train: pd.DataFrame, y_train: pd.Series)-> tuple[pd.D
     X_train.drop('Job Title', axis=1, inplace=True)
 
     # 5. Normalize numerical variables
-    scaler = MinMaxScaler()
+    scaler = StandardScaler()
     numeric_features = ['Age', 'Years of Experience', 'Job Title Encoded', 'Education Level']
     X_train[numeric_features] = scaler.fit_transform(X_train[numeric_features])
 
@@ -88,7 +90,7 @@ def normalize_test_data(X_test: pd.DataFrame, te: ce.TargetEncoder, scaler: MinM
     X_test['Gender'] = X_test['Gender'].map(gender_mapping)
     if X_test['Gender'].isnull().any():
         X_test['Gender'] = X_test['Gender'].fillna(X_test['Gender'].mode()[0])
-
+    #X_test = X_test.drop("Gender", axis=1)
     # 2. Encode 'Education Level'
     education_order = {
         "High School": 0,
