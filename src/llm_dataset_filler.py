@@ -35,7 +35,7 @@ async def infer_missing_value(session, row, index, field, base_url=BASE_URL, mod
         return index, field, None  # Cannot infer without a description
 
     # Construct the prompt
-    prompt = f"""Extract the {field} from the following employee description, if it is explicitly mentioned. If the {field} is not mentioned, reply with 'Not found'.
+    prompt = f"""Extract the {field} from the following employee description, if it is explicitly mentioned. If the {field} is not mentioned, reply with 'Not found', if the filed is AGE be sure to not put years of experience, its different.
 
 Description:
 {description}
