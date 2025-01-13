@@ -6,9 +6,15 @@ import category_encoders as ce
 
 
 def split_data(df:pd.DataFrame) -> tuple[pd.DataFrame,pd.DataFrame,pd.DataFrame,pd.DataFrame]:
+    
+    # Drop irrelevant features
+    df = df.drop("Gender", axis=1)
+    df = df.drop("id", axis=1)
+    
     # Separate features and target variable
     X = df.drop('Salary', axis=1)
     y = df['Salary']
+    
 
     # Split the data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -31,15 +37,7 @@ def normalize_train_data(X_train: pd.DataFrame, y_train: pd.Series)-> tuple[pd.D
     X_train = X_train.copy()
     y_train = y_train.copy()
 
-    # 1. Encode 'Gender'
-    gender_mapping = {'Male': 0, 'Female': 1}
-    X_train['Gender'] = X_train['Gender'].map(gender_mapping)
-    if X_train['Gender'].isnull().any():
-        X_train['Gender'] = X_train['Gender'].fillna(X_train['Gender'].mode()[0])
-        
-    #X_train = X_train.drop("Gender", axis=1)
-
-    # 2. Encode 'Education Level'
+    #  Encode 'Education Level'
     education_order = {
         "High School": 0,
         "Associate's": 1,
@@ -51,11 +49,11 @@ def normalize_train_data(X_train: pd.DataFrame, y_train: pd.Series)-> tuple[pd.D
     if X_train['Education Level'].isnull().any():
         X_train['Education Level'] = X_train['Education Level'].fillna(X_train['Education Level'].mode()[0])
 
-    # 3. Handle missing 'Job Title' values
+    # Handle missing 'Job Title' values
     if X_train['Job Title'].isnull().any():
         X_train['Job Title'] = X_train['Job Title'].fillna('Unknown')
 
-    # 4. Target encode 'Job Title' without grouping
+    #  Target encode 'Job Title' without grouping
     smoothing = 10  # Adjust smoothing parameter as needed
     te = ce.TargetEncoder(cols=['Job Title'], smoothing=smoothing)
     te.fit(X_train[['Job Title']], y_train)  # Pass DataFrame with 'Job Title' column
@@ -65,7 +63,7 @@ def normalize_train_data(X_train: pd.DataFrame, y_train: pd.Series)-> tuple[pd.D
     X_train.drop('Job Title', axis=1, inplace=True)
 
     # 5. Normalize numerical variables
-    scaler = StandardScaler()
+    scaler = MinMaxScaler()
     numeric_features = ['Age', 'Years of Experience', 'Job Title Encoded', 'Education Level']
     X_train[numeric_features] = scaler.fit_transform(X_train[numeric_features])
 
@@ -85,13 +83,9 @@ def normalize_test_data(X_test: pd.DataFrame, te: ce.TargetEncoder, scaler: MinM
     """
     X_test = X_test.copy()
 
-    # 1. Encode 'Gender'
-    gender_mapping = {'Male': 0, 'Female': 1}
-    X_test['Gender'] = X_test['Gender'].map(gender_mapping)
-    if X_test['Gender'].isnull().any():
-        X_test['Gender'] = X_test['Gender'].fillna(X_test['Gender'].mode()[0])
-    #X_test = X_test.drop("Gender", axis=1)
-    # 2. Encode 'Education Level'
+    
+    
+    #  Encode 'Education Level'
     education_order = {
         "High School": 0,
         "Associate's": 1,
@@ -103,15 +97,15 @@ def normalize_test_data(X_test: pd.DataFrame, te: ce.TargetEncoder, scaler: MinM
     if X_test['Education Level'].isnull().any():
         X_test['Education Level'] = X_test['Education Level'].fillna(X_test['Education Level'].mode()[0])
 
-    # 3. Handle missing 'Job Title' values
+    # Handle missing 'Job Title' values
     if X_test['Job Title'].isnull().any():
         X_test['Job Title'] = X_test['Job Title'].fillna('Unknown')
 
-    # 4. Transform 'Job Title' using the fitted target encoder
+    # Transform 'Job Title' using the fitted target encoder
     X_test['Job Title Encoded'] = te.transform(X_test[['Job Title']])['Job Title']
     X_test.drop('Job Title', axis=1, inplace=True)
 
-    # 5. Normalize numerical variables using scaler fitted on training data
+    # Normalize numerical variables using scaler fitted on training data
     numeric_features = ['Age', 'Years of Experience', 'Job Title Encoded', 'Education Level']
     X_test[numeric_features]  = scaler.transform(X_test[numeric_features])
 
