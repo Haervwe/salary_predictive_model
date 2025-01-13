@@ -1,10 +1,23 @@
 import pandas as pd
 import numpy as np
-from typing import List
+from typing import Dict
 from src import llm_dataset_filler
 
 
-
+        # Detect outliers using IQR method
+def detect_outliers_iqr(data:pd.DataFrame, multiplier:float=1.5)->Dict:
+    numerical_cols = ['Age', 'Years of Experience', 'Salary']
+    outliers = {}
+    for col in numerical_cols:
+        Q1 = data[col].quantile(0.25)
+        Q3 = data[col].quantile(0.75)
+        IQR = Q3 - Q1
+        lower_bound = Q1 - multiplier * IQR
+        upper_bound = Q3 + multiplier * IQR
+        outlier_indices = data[(data[col] < lower_bound) | (data[col] > upper_bound)].index
+        outliers[col] = outlier_indices
+        print(f"Found {len(outlier_indices)} outliers in '{col}' using IQR method.")
+    return outliers
 
 async def preprocess(full_dataset:pd.DataFrame)->pd.DataFrame:
 
@@ -46,12 +59,19 @@ async def preprocess(full_dataset:pd.DataFrame)->pd.DataFrame:
     
     #remove description column since its a high dimesional feature and will not be used to train the model
     cleansed_dataset.drop('Description', axis=1, inplace=True)
-    
-    print("\nCleansed Dataset:")
+
+    outliers_iqr = detect_outliers_iqr(cleansed_dataset)
+    all_outlier_indices = set()
+    for indices in outliers_iqr.values():
+        all_outlier_indices.update(indices)
+    print(all_outlier_indices)
+    # Remove outlier rows
+    cleansed_dataset = cleansed_dataset.drop(index=all_outlier_indices).reset_index(drop=True)
+    print(f"Dataset shape after removing outliers: {cleansed_dataset.shape}")
+    print("\nCleansed Dataset after outlier removal:")
     print(cleansed_dataset.head())
     print(cleansed_dataset.tail())
     print(cleansed_dataset.info())
-    #print("\nMissing Values in Full Dataset:")
     print(cleansed_dataset.isnull().sum())
     return cleansed_dataset
 

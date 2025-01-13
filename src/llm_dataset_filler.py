@@ -37,10 +37,12 @@ async def infer_missing_value(session, row, index, field, base_url=BASE_URL, mod
     # Construct the prompt
     prompt = f"""Extract the {field} from the following employee description, if it is explicitly mentioned. If the {field} is not mentioned, reply with 'Not found', if the filed is AGE be sure to not put years of experience, its different.
 
+for education use only Bachelor's , Master's , PhD , dont use degree
+
 Description:
 {description}
 
-Your response should be just the value of {field}, without any additional text.
+Your response should be just the value of {field}, without any additional text. 
 """
 
     payload = {
@@ -63,11 +65,11 @@ Your response should be just the value of {field}, without any additional text.
                 # Read the NDJSON response line by line
                 inferred_value = ''
                 async for line in response.content:
-                    line = line.decode('utf-8').strip()
+                    line = line.decode('utf-8')
                     if line:
                         data = json.loads(line)
                         # Depending on the API, extract the relevant field
-                        answer = data.get('response', '').strip()
+                        answer = data.get('response', '')
                         if answer:
                             inferred_value += answer
                 inferred_value = inferred_value.strip()

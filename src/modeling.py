@@ -20,7 +20,7 @@ def train_model(normalized_X_train, y_train):
         'max_depth': [None, 10, 20, 30],
         'min_samples_split': [4, 10, 20],
         'min_samples_leaf': [1, 2, 4],
-        'max_features': [1.0, 'sqrt']
+        'max_features': [0.5, 'sqrt']
     }
 
     # Initialize the Random Forest Regressor

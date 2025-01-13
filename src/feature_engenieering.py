@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import KFold ,train_test_split
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 import category_encoders as ce
 
 
@@ -39,11 +39,10 @@ def normalize_train_data(X_train: pd.DataFrame, y_train: pd.Series)-> tuple[pd.D
 
     #  Encode 'Education Level'
     education_order = {
-        "High School": 0,
-        "Associate's": 1,
-        "Bachelor's": 2,
-        "Master's": 3,
-        "PhD": 4
+
+        "Bachelor's": 0,
+        "Master's": 1,
+        "PhD": 3
     }
     X_train['Education Level'] = X_train['Education Level'].map(education_order)
     if X_train['Education Level'].isnull().any():
@@ -54,7 +53,7 @@ def normalize_train_data(X_train: pd.DataFrame, y_train: pd.Series)-> tuple[pd.D
         X_train['Job Title'] = X_train['Job Title'].fillna('Unknown')
 
     #  Target encode 'Job Title' without grouping
-    smoothing = 10  # Adjust smoothing parameter as needed
+    smoothing = 10
     te = ce.TargetEncoder(cols=['Job Title'], smoothing=smoothing)
     te.fit(X_train[['Job Title']], y_train)  # Pass DataFrame with 'Job Title' column
 
@@ -87,11 +86,9 @@ def normalize_test_data(X_test: pd.DataFrame, te: ce.TargetEncoder, scaler: MinM
     
     #  Encode 'Education Level'
     education_order = {
-        "High School": 0,
-        "Associate's": 1,
-        "Bachelor's": 2,
-        "Master's": 3,
-        "PhD": 4
+        "Bachelor's": 0,
+        "Master's": 1,
+        "PhD": 2
     }
     X_test['Education Level'] = X_test['Education Level'].map(education_order)
     if X_test['Education Level'].isnull().any():
