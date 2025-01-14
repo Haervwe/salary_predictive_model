@@ -6,3 +6,5 @@ from . import modeling
 from . import evaluation
 from . import visualize_data
 from . import model_compare
+from . import inference
+from . import inference_jupyter_form

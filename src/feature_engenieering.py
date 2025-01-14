@@ -74,7 +74,7 @@ def normalize_train_data(
 
     # Transform the 'Job Title' column
     X_train['Job Title Encoded'] = te.transform(X_train[['Job Title']])['Job Title']
-    X_train.drop('Job Title', axis=1, inplace=True)
+    
 
     # Normalize numerical variables
     numeric_features = ['Age', 'Years of Experience', 'Job Title Encoded', 'Education Level']
@@ -94,11 +94,17 @@ def normalize_train_data(
     print(f"Target encoder saved to {te_filename}")
 
     # Create and save a dictionary mapping job titles to their encoded values
-    job_title_mapping = dict(zip(X_train.index, X_train['Job Title Encoded']))
+    job_title_mapping = dict(zip(X_train['Job Title'], X_train['Job Title Encoded']))  # Correct mapping
     mapping_filename = f'./models/{prefix}job_title_mapping.pkl'
     joblib.dump(job_title_mapping, mapping_filename)
     print(f"Job title mapping saved to {mapping_filename}")
-
+    
+    # ***Create the inverted mapping***
+    inverted_job_title_mapping = {v: k for k, v in job_title_mapping.items()}
+    inverted_mapping_filename = f'./models/{prefix}inverted_job_title_mapping.pkl'
+    joblib.dump(inverted_job_title_mapping, inverted_mapping_filename) 
+    print(f"Inverted job title mapping saved to {inverted_mapping_filename}")
+    X_train.drop('Job Title', axis=1, inplace=True)
     return X_train, te, scaler
 
 def normalize_test_data(
