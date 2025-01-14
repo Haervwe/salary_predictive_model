@@ -122,7 +122,7 @@ def train_NN_model(normalized_X_train, y_train, prefix: str = ""):
 
     # Save the Neural Network model
     os.makedirs('./models', exist_ok=True)  # Ensure the directory exists
-    model_filename = f'./models/{prefix}neural_network_model'
+    model_filename = f'./models/{prefix}neural_network_model.keras'
     model_nn.save(model_filename)
     print(f"Neural Network model saved to {model_filename}")
 
@@ -146,6 +146,6 @@ def train_dummy_regressor(X_train, y_train,prefix=""):
     os.makedirs('./models', exist_ok=True)  # Ensure the directory exists
     model_filename = f'./models/{prefix}dummy_reggresor_model.pkl'
     joblib.dump(dr, model_filename)
-    print(f"Random Forest model saved to {model_filename}")
+    print(f"Dummy Regressor saved as: {model_filename}")
     return dr
 
