@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from typing import Dict
 from src import llm_dataset_filler
+import pickle
 
 
         # Detect outliers using IQR method
@@ -73,6 +74,7 @@ async def preprocess(full_dataset:pd.DataFrame)->pd.DataFrame:
     print(cleansed_dataset.tail())
     print(cleansed_dataset.info())
     print(cleansed_dataset.isnull().sum())
+    cleansed_dataset.to_pickle("./data/cleansed_dataset.pkl")
     return cleansed_dataset
 
 

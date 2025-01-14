@@ -16,8 +16,6 @@ def load_data(data_paths:list[str])->pd.DataFrame:
     full_dataset = None
     for data in data_paths:
         df = pd.read_csv(data)
-        ## print(df.head())
-        ## print(df.info())
         if full_dataset is None:
             full_dataset = df.copy()
         else:
@@ -25,6 +23,3 @@ def load_data(data_paths:list[str])->pd.DataFrame:
             full_dataset = full_dataset.merge(df, how='outer')
 
     return full_dataset
-
-
-

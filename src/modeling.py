@@ -117,6 +117,7 @@ def train_NN_model(normalized_X_train, y_train, prefix: str = ""):
     os.makedirs('./plots', exist_ok=True)  # Ensure the directory exists
     plot_filename = f'./plots/{prefix}nn_training_loss.png'
     plt.savefig(plot_filename, bbox_inches='tight')
+    plt.show()
     plt.close()
     print(f"Training loss plot saved to {plot_filename}")
 

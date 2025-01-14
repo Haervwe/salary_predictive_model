@@ -1,5 +1,3 @@
-# data_imputation.py
-
 import pandas as pd
 import asyncio
 import aiohttp
@@ -42,6 +40,7 @@ for education use only Bachelor's , Master's , PhD , dont use degree
 Description:
 {description}
 
+Your response should be just the value of {field}, without any additional text.
 Your response should be just the value of {field}, without any additional text. 
 """
 
