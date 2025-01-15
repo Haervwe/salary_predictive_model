@@ -1,7 +1,6 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, validator, root_validator
+from pydantic import BaseModel, field_validator
 import pandas as pd
-import os
 
 # Import your inference functions from src/inference.py
 from src.inference import (
@@ -63,18 +62,11 @@ class InputData(BaseModel):
     job_title: str
     years_of_experience: float
 
-    @validator('education_level')
+    @field_validator('education_level')
     def validate_education_level(cls, v):
         if v not in ["Bachelor's", "Master's", "PhD"]:
             raise ValueError("Invalid education level")
         return v
-
-    @root_validator
-    def validate_all(cls, values):
-        job_title = values.get('job_title')
-        if unique_job_titles and job_title not in unique_job_titles:
-            raise ValueError(f"Invalid job title: {job_title}")
-        return values
 
 # Endpoint to perform prediction
 @app.post("/predict")
