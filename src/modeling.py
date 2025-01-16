@@ -4,10 +4,12 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import GridSearchCV
 from sklearn.dummy import DummyRegressor
 import tensorflow as tf
+import pandas as pd
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout
+from tensorflow.keras.layers import Input , Dense, Dropout
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import EarlyStopping
+import seaborn as sns
 import matplotlib.pyplot as plt
 
 def train_model(normalized_X_train, y_train, prefix: str = ""):
@@ -53,12 +55,76 @@ def train_model(normalized_X_train, y_train, prefix: str = ""):
     # Best model
     best_rf_model = grid_search.best_estimator_
 
+    # Ensure the directory exists
+    os.makedirs('./models', exist_ok=True)
+
     # Save the Random Forest model
-    os.makedirs('./models', exist_ok=True)  # Ensure the directory exists
     model_filename = f'./models/{prefix}random_forest_model.pkl'
     joblib.dump(best_rf_model, model_filename)
     print(f"Random Forest model saved to {model_filename}")
+    
+    # ========================================
+    # Plotting the Grid Search Results
+    # ========================================
 
+    # Convert cv_results_ to a DataFrame
+    results_df = pd.DataFrame(grid_search.cv_results_)
+
+    # Save the cv_results_ to CSV for reference
+    results_filename = f'./plots/{prefix}grid_search_results.csv'
+    results_df.to_csv(results_filename, index=False)
+    print(f"Grid search results saved to {results_filename}")
+
+    # Convert negative mean absolute error to positive values
+    results_df['mean_absolute_error'] = -results_df['mean_test_score']
+
+    # Example Plot 1: Heatmap of Mean Absolute Error vs. n_estimators and max_depth
+    pivot_table = results_df.pivot_table(
+        values='mean_absolute_error',
+        index='param_n_estimators',
+        columns='param_max_depth'
+    )
+
+    plt.figure(figsize=(10, 6))
+    sns.heatmap(pivot_table, annot=True, fmt=".3f", cmap='viridis')
+    plt.title('Grid Search Mean Absolute Error')
+    plt.ylabel('Number of Estimators (n_estimators)')
+    plt.xlabel('Max Depth')
+    plt.tight_layout()
+    heatmap_filename = f'./plots/{prefix}grid_search_heatmap.png'
+    plt.savefig(heatmap_filename)
+    plt.show()
+    print(f"Grid search heatmap saved to {heatmap_filename}")
+    plt.close()
+
+    # Example Plot 2: Line Plot of Mean Absolute Error vs. n_estimators for different max_depth
+    # Filter the DataFrame for specific values to reduce complexity
+    subset_df = results_df[
+        (results_df['param_min_samples_split'] == 4) &
+        (results_df['param_min_samples_leaf'] == 1) &
+        (results_df['param_max_features'] == 0.5)
+    ]
+
+    plt.figure(figsize=(10, 6))
+    sns.lineplot(
+        data=subset_df,
+        x='param_n_estimators',
+        y='mean_absolute_error',
+        hue='param_max_depth',
+        marker='o'
+    )
+    plt.title('Mean Absolute Error vs. n_estimators for different max_depth')
+    plt.ylabel('Mean Absolute Error')
+    plt.xlabel('Number of Estimators (n_estimators)')
+    plt.legend(title='Max Depth')
+    plt.tight_layout()
+    lineplot_filename = f'./plots/{prefix}grid_search_lineplot.png'
+    plt.savefig(lineplot_filename)
+    plt.show()
+    print(f"Grid search line plot saved to {lineplot_filename}")
+    plt.close()
+
+    # Return the best model
     return best_rf_model
 
 def train_NN_model(normalized_X_train, y_train, prefix: str = ""):
@@ -74,16 +140,17 @@ def train_NN_model(normalized_X_train, y_train, prefix: str = ""):
     - model_nn: Trained Neural Network model.
     """
     optimizer = Adam(learning_rate=0.001)
+    # Define the model
     model_nn = Sequential()
-    model_nn.add(Dense(64, input_dim=normalized_X_train.shape[1], activation='relu'))
-    model_nn.add(Dense(32, activation='relu'))
-    model_nn.add(Dense(1))
-    model_nn.add(Dense(128, input_dim=normalized_X_train.shape[1], activation='relu'))
-    model_nn.add(Dropout(0.2))
+    # Add an Input layer specifying the shape
+    model_nn.add(Input(shape=(normalized_X_train.shape[1],)))
     model_nn.add(Dense(64, activation='relu'))
     model_nn.add(Dropout(0.2))
     model_nn.add(Dense(32, activation='relu'))
-    model_nn.add(Dense(1))
+    model_nn.add(Dropout(0.2))
+    model_nn.add(Dense(16, activation='relu'))
+    model_nn.add(Dense(1))  # Output layer for regression
+
 
     early_stopping = EarlyStopping(
         monitor='val_loss',

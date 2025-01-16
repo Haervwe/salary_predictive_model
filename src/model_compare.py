@@ -108,6 +108,8 @@ def compare_models(models_data: Dict[str, Tuple[object, pd.DataFrame, pd.Series]
         for i, v in enumerate(means):
             axes[idx].text(i, v, f'{v:.3f}', ha='center', va='bottom')
     
+    file_name = "./plots/error_model_comparison.png"
+    plt.savefig(file_name, bbox_inches='tight')
     plt.tight_layout()
     plt.show()
     
@@ -133,6 +135,8 @@ def compare_models(models_data: Dict[str, Tuple[object, pd.DataFrame, pd.Series]
         plt.legend()
     
     plt.tight_layout()
+    file_name = "./plots/predicted_vs_actual_values_model_comparison.png"
+    plt.savefig(file_name, bbox_inches='tight')
     plt.show()
     
     # 3. Enhanced residuals box plot
@@ -152,6 +156,8 @@ def compare_models(models_data: Dict[str, Tuple[object, pd.DataFrame, pd.Series]
     plt.title('Residuals Distribution Comparison')
     plt.xticks(rotation=45)
     plt.tight_layout()
+    file_name = "./plots/residuals_distribution_model_comparison.png"
+    plt.savefig(file_name, bbox_inches='tight')
     plt.show()
     
     # Print detailed summary statistics

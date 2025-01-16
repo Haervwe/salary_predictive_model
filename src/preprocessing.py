@@ -5,7 +5,7 @@ from src import llm_dataset_filler
 import pickle
 
 
-        # Detect outliers using IQR method
+# Detect outliers using IQR method
 def detect_outliers_iqr(data:pd.DataFrame, multiplier:float=1.5)->Dict:
     numerical_cols = ['Age', 'Years of Experience', 'Salary']
     outliers = {}
@@ -20,17 +20,17 @@ def detect_outliers_iqr(data:pd.DataFrame, multiplier:float=1.5)->Dict:
         print(f"Found {len(outlier_indices)} outliers in '{col}' using IQR method.")
     return outliers
 
-async def preprocess(full_dataset:pd.DataFrame)->pd.DataFrame:
 
-    #prints to check dataset merge
+#dataframe preprocessing
+async def preprocess(full_dataset: pd.DataFrame) -> pd.DataFrame:
+
+    # Print initial dataset information
     print("\nFull Merged Dataset:")
     print(full_dataset.head())
     print(full_dataset.tail())
     print(full_dataset.info())
 
-
-    #Check missing values and print
-
+    # Check for missing values
     print("\nMissing Values in Full Dataset:")
     print(full_dataset.isnull().sum())
 
@@ -39,41 +39,60 @@ async def preprocess(full_dataset:pd.DataFrame)->pd.DataFrame:
     print("\nRows with Missing Values:")
     print(missing_rows)
 
-    #use an LLM to infer missing values form description column.
+    # Use an LLM to infer missing values from the 'Description' column
     full_dataset = await llm_dataset_filler.infer_missing_values_in_dataframe(full_dataset)
-    print("\nMissing Values in Full Dataset:")
-
-    #print Rows that cant be infered and cleanse them
+    print("\nMissing Values after LLM inference:")
     print(full_dataset.isnull().sum())
+
+    # Display rows that still have missing values and cannot be inferred
     missing_rows = full_dataset[full_dataset.isnull().any(axis=1)]
-    print("\nRows with Missing Values:")
+    print("\nRows with Missing Values after LLM inference:")
     print(missing_rows)
-    
-    #repace "NotFound" with "np.nan"
+
+    # Replace "NotFound" with NaN
     full_dataset.replace("NotFound", np.nan, inplace=True)
-    
-    #drop all rows that have any null values in the relvant fields
-    
+
+    # Define critical columns for cleansing
     critical_columns = ['Age', 'Gender', 'Education Level', 'Job Title', 'Years of Experience', 'Salary']
-    
+
+    # Drop rows with any null values in critical columns
     cleansed_dataset = full_dataset.dropna(subset=critical_columns).reset_index(drop=True)
-    
-    #remove description column since its a high dimesional feature and will not be used to train the model
+
+    # Remove the 'Description' column as it won't be used for training
     cleansed_dataset.drop('Description', axis=1, inplace=True)
 
+    # Detect duplicate rows
+    duplicate_rows = cleansed_dataset[cleansed_dataset.duplicated()]
+    num_duplicates = duplicate_rows.shape[0]
+    print(f"\nNumber of duplicate rows found: {num_duplicates}")
+    if num_duplicates > 0:
+        print("\nDuplicate rows:")
+        print(duplicate_rows)
+
+    # Remove duplicate rows
+    cleansed_dataset = cleansed_dataset.drop_duplicates().reset_index(drop=True)
+    print(f"Dataset shape after removing duplicates: {cleansed_dataset.shape}")
+
+    # Detect outliers using IQR method
     outliers_iqr = detect_outliers_iqr(cleansed_dataset)
     all_outlier_indices = set()
     for indices in outliers_iqr.values():
         all_outlier_indices.update(indices)
-    print(all_outlier_indices)
+    print(f"\nTotal number of outlier rows to remove: {len(all_outlier_indices)}")
+
     # Remove outlier rows
     cleansed_dataset = cleansed_dataset.drop(index=all_outlier_indices).reset_index(drop=True)
     print(f"Dataset shape after removing outliers: {cleansed_dataset.shape}")
-    print("\nCleansed Dataset after outlier removal:")
+
+    # Final dataset information
+    print("\nCleansed Dataset after duplicate and outlier removal:")
     print(cleansed_dataset.head())
     print(cleansed_dataset.tail())
     print(cleansed_dataset.info())
+    print("\nMissing Values in Cleansed Dataset:")
     print(cleansed_dataset.isnull().sum())
+
+    # Save the cleansed dataset
     cleansed_dataset.to_pickle("./data/cleansed_dataset.pkl")
     return cleansed_dataset
 
