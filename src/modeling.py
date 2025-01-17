@@ -9,8 +9,10 @@ from tensorflow.keras.models import Sequential # type: ignore
 from tensorflow.keras.layers import Input , Dense, Dropout # type: ignore
 from tensorflow.keras.optimizers import Adam # type: ignore
 from tensorflow.keras.callbacks import EarlyStopping # type: ignore
+from tensorflow.keras import backend as K
 import seaborn as sns
 import matplotlib.pyplot as plt
+import gc
 
 def train_model(normalized_X_train, y_train, prefix: str = ""):
     """
@@ -193,7 +195,8 @@ def train_NN_model(normalized_X_train, y_train, prefix: str = ""):
     model_filename = f'./models/{prefix}neural_network_model.keras'
     model_nn.save(model_filename)
     print(f"Neural Network model saved to {model_filename}")
-
+    K.clear_session()
+    gc.collect()
     return model_nn
 
 

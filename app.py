@@ -1,9 +1,22 @@
 import gradio as gr
 import requests
 import json
+import uvicorn
+import multiprocessing
+import time
 
 # FastAPI endpoint URL
 API_URL = "http://localhost:9988"
+
+# Import your FastAPI app
+from api import app  # Assuming your FastAPI script is named fastapi_app.py
+
+# FastAPI endpoint URL
+API_URL = "http://localhost:9988"
+
+def run_fastapi_server():
+    """Function to run the FastAPI server"""
+    uvicorn.run(app, host="0.0.0.0", port=9988)
 
 # Get unique job titles from the API
 def get_job_titles():
@@ -12,11 +25,24 @@ def get_job_titles():
         return response.json()["job_titles"]
     return []
 
+#wait helper function to wait for the server to start
+def wait_for_server(url, timeout=10):
+    """Wait until the server at the specified URL is responsive."""
+    start_time = time.time()
+    while True:
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                return
+        except requests.exceptions.ConnectionError:
+            pass
+        if time.time() - start_time > timeout:
+            raise Exception(f"Server {url} did not start within {timeout} seconds.")
+        time.sleep(1.0)
+
 # Define the education levels
 education_levels = ["Bachelor's", "Master's", "PhD"]
 
-# Get unique job titles
-unique_job_titles = get_job_titles()
 
 def predict_salary(age, education_level, job_title, years_of_experience):
     # Frontend validation
@@ -64,7 +90,7 @@ def get_recent_predictions():
     except Exception as e:
         return [[f"Error fetching predictions: {str(e)}"]]
 
-def create_gradio_interface():
+def create_gradio_interface(unique_job_titles):
     with gr.Blocks() as demo:
         gr.Markdown("# Salary Prediction App")
         gr.Markdown("Enter your details to predict the expected salary.")
@@ -141,5 +167,24 @@ def create_gradio_interface():
     return demo
 
 if __name__ == "__main__":
-    demo = create_gradio_interface()
-    demo.launch(server_name="0.0.0.0", server_port=7860)
+    # Start FastAPI server in a separate process
+    fastapi_process = multiprocessing.Process(target=run_fastapi_server)
+    fastapi_process.start()
+
+
+    # Wait for the server to start
+    wait_for_server(f"{API_URL}/health_check", timeout=30)
+
+    # Get unique job titles
+    unique_job_titles = get_job_titles()
+    
+    try:
+        # Launch Gradio interface
+        demo = create_gradio_interface(unique_job_titles)
+        demo.launch(server_name="0.0.0.0", server_port=7860)
+    except Exception as e:
+        print(f"Error launching Gradio interface: {e}")
+    finally:
+        # Ensure FastAPI server is terminated
+        fastapi_process.terminate()
+        fastapi_process.join()

@@ -4,6 +4,7 @@ import pandas as pd
 import uvicorn
 from sqlalchemy.orm import Session
 from contextlib import asynccontextmanager
+import os
 
 # Import your inference functions from src/inference.py
 from src.inference import (
@@ -14,8 +15,8 @@ from src.inference import (
     load_model_nn
 )
 
-from src.database import get_db
-from src.db_model import Prediction
+from src.database import engine, get_db, SQLALCHEMY_DATABASE_URL
+from src.db_model import Base, Prediction
 
 class InputData(BaseModel):
     age: int
@@ -29,9 +30,27 @@ class InputData(BaseModel):
             raise ValueError("Invalid education level")
         return v
 
+
+# Function to check and create database if not exists
+def ensure_database_exists():
+    # For SQLite, check if the database file exists
+    if 'sqlite:///' in SQLALCHEMY_DATABASE_URL:
+        db_path = SQLALCHEMY_DATABASE_URL.replace('sqlite:///', '')
+        if not os.path.exists(db_path):
+            # Create the database and tables
+            Base.metadata.create_all(bind=engine)
+            print(f"Database created at {db_path}")
+    else:
+        # For other database types, create tables
+        Base.metadata.create_all(bind=engine)
+        print("Database tables created")
+
 # Define lifespan context manager
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    
+    ensure_database_exists()
+    
     # Startup: Load models and other resources
     prefix = ""
     app.state.scaler = load_scaler(prefix=prefix)
@@ -104,6 +123,10 @@ async def get_predictions(
         .all()
     
     return predictions
+
+@app.get("/health_check")
+async def health_check():
+    return {"status": "ok"}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=9988)

@@ -19,6 +19,12 @@ def load_target_encoder(prefix=""):
     return te
 
 def load_model_nn(prefix=""):
+    # Limit GPU memory usage to 1gb instead of the maximum possible
+    gpus = tf.config.experimental.list_physical_devices('GPU')
+    if gpus:
+        tf.config.experimental.set_virtual_device_configuration(
+            gpus[0],
+            [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024)])  # Limit to 1GB
     """Loads the trained neural network model."""
     model_filename = f'./models/{prefix}neural_network_model.keras'
     if not os.path.exists(model_filename):
