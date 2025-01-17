@@ -15,7 +15,7 @@ def visualize_dataset(df:pd.DataFrame)->None:
         plt.figure(figsize=(8, 6))
         sns.boxplot(y=df[col])
         plt.title(f'Box Plot of {col}')
-        plt.show()
+        plt.savefig(f'plots/boxplot_{col.replace(" ", "_")}.png', bbox_inches='tight')
         plt.close()
         
     # Create histograms for each numerical column
@@ -25,7 +25,7 @@ def visualize_dataset(df:pd.DataFrame)->None:
         plt.title(f'Histogram of {col}')
         plt.xlabel(col)
         plt.ylabel('Frequency')
-        plt.show()
+        plt.savefig(f'plots/histogram_{col.replace(" ", "_")}.png', bbox_inches='tight')
         plt.close()
         
     # Pairs of variables to plot
@@ -37,7 +37,7 @@ def visualize_dataset(df:pd.DataFrame)->None:
         plt.title(f'Scatter Plot of {y_col} vs {x_col}')
         plt.xlabel(x_col)
         plt.ylabel(y_col)
-        plt.savefig(f'plots/scatter_{y_col}_vs_{x_col}.png', bbox_inches='tight')
+        plt.savefig(f'plots/scatter_{y_col.replace(" ", "_")}_vs_{x_col.replace(" ", "_")}.png', bbox_inches='tight')
         plt.close()
         
     #categorical columns
@@ -47,7 +47,7 @@ def visualize_dataset(df:pd.DataFrame)->None:
         plt.figure(figsize=(8, 6))
         sns.countplot(data=df, x=col)
         plt.title(f'Count Plot of {col}')
-        plt.show()
+        plt.savefig(f'plots/countplot_{col.replace(" ", "_")}.png', bbox_inches='tight')
         plt.close()
         
     # Visualize top 10 job titles
@@ -58,6 +58,6 @@ def visualize_dataset(df:pd.DataFrame)->None:
     plt.figure(figsize=(12, 6))
     sns.countplot(data=filtered_dataset, y='Job Title', order=top_job_titles)
     plt.title('Top 10 Job Titles')
-    plt.show()
+    plt.savefig('plots/top_10_job_titles.png', bbox_inches='tight')
     plt.close()
-        
+
