@@ -147,5 +147,66 @@ def normalize_test_data(
     # Normalize numerical variables using scaler fitted on training data
     numeric_features = ['Age', 'Years of Experience', 'Job Title Encoded', 'Education Level']
     X_test[numeric_features] = scaler.transform(X_test[numeric_features])
-
+    
     return X_test
+
+
+def save_datasets(X_train, X_test, y_train, y_test, normalized_X_train, normalized_X_train_nn, normalized_X_test, normalized_X_test_nn):
+    """
+    Saves the preprocessed datasets to PKL files.
+
+    Parameters:
+    - X_train: Preprocessed training features.
+    - X_test: Preprocessed test features.
+    - y_train: Training target variable.
+    - y_test: Test target variable.
+
+    Returns:
+    - None
+    """
+    os.makedirs('./datasets', exist_ok=True)  # Ensure the directory exists
+
+    # Save preprocessed datasets
+    X_train.to_pickle("./data/X_train.pkl")
+    print(f"X_train saved to './datasets' directory.")
+    y_train.to_pickle("./data/y_train.pkl")
+    print(f"y_train saved to './datasets' directory.")
+    X_test.to_pickle("./data/X_test.pkl")
+    print(f"X_test saved to './datasets' directory.")  
+    y_test.to_pickle("./data/y_test.pkl")
+    print(f"y_test saved to './datasets' directory.")
+    normalized_X_train.to_pickle("./data/normalized_X_train.pkl")
+    print(f"normalized_X_train saved to './datasets' directory.")
+    normalized_X_train_nn.to_pickle("./data/normalized_X_train_nn.pkl")
+    print(f"normalized_X_train_nn saved to './datasets' directory.")
+    normalized_X_test.to_pickle("./data/normalized_X_test.pkl")
+    print(f"normalized_X_test saved to './datasets' directory.")
+    normalized_X_test_nn.to_pickle("./data/normalized_X_test_nn.pkl")
+    print(f"normalized_X_test_nn saved to './datasets' directory.")
+    print(f"All Preprocessed datasets saved to './datasets' directory.")
+    
+    return None
+
+
+def load_datasets():
+    """
+    Loads the preprocessed datasets from PKL files.
+
+    Parameters:
+    - None
+
+    Returns:
+    - X_train: Preprocessed training features.
+    - X_test: Preprocessed test features.
+    - y_train: Training target variable.
+    - y_test: Test target variable.
+    """
+    X_train = pd.read_pickle("./data/X_train.pkl")
+    y_train = pd.read_pickle("./data/y_train.pkl")
+    X_test = pd.read_pickle("./data/X_test.pkl")
+    y_test = pd.read_pickle("./data/y_test.pkl")
+    normalized_X_train = pd.read_pickle("./data/normalized_X_train.pkl")
+    normalized_X_train_nn = pd.read_pickle("./data/normalized_X_train_nn.pkl")
+    normalized_X_test = pd.read_pickle("./data/normalized_X_test.pkl")
+    normalized_X_test_nn = pd.read_pickle("./data/normalized_X_test_nn.pkl")
+    return X_train, X_test, y_train, y_test, normalized_X_train, normalized_X_train_nn, normalized_X_test, normalized_X_test_nn

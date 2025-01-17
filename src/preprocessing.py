@@ -22,7 +22,7 @@ def detect_outliers_iqr(data:pd.DataFrame, multiplier:float=1.5)->Dict:
 
 
 #dataframe preprocessing
-async def preprocess(full_dataset: pd.DataFrame) -> pd.DataFrame:
+async def preprocess(full_dataset: pd.DataFrame, base_url:str=None, model_name:str=None, api_key:str="") -> pd.DataFrame:
 
     # Print initial dataset information
     print("\nFull Merged Dataset:")
@@ -40,7 +40,11 @@ async def preprocess(full_dataset: pd.DataFrame) -> pd.DataFrame:
     print(missing_rows)
 
     # Use an LLM to infer missing values from the 'Description' column
-    full_dataset = await llm_dataset_filler.infer_missing_values_in_dataframe(full_dataset)
+    if base_url is not None and model_name is not None:
+        full_dataset = await llm_dataset_filler.infer_missing_values_in_dataframe(full_dataset,base_url=base_url, model_name=model_name, api_key=api_key)
+    else:
+        full_dataset = await llm_dataset_filler.infer_missing_values_in_dataframe(full_dataset)
+    
     print("\nMissing Values after LLM inference:")
     print(full_dataset.isnull().sum())
 

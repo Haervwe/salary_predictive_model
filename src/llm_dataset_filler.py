@@ -11,8 +11,9 @@ logger = logging.getLogger(__name__)
 # Configuration variables
 BASE_URL = 'http://localhost:11434'  # Replace with your actual server URL and port
 MODEL_NAME = 'hermes3:8b-llama3.1-q6_K'       # Replace with your model name
+API_KEY = ""  # Replace with your API key
 
-async def infer_missing_value(session, row, index, field, base_url=BASE_URL, model_name=MODEL_NAME):
+async def infer_missing_value(session, row, index, field, base_url=BASE_URL, model_name=MODEL_NAME, api_key=API_KEY):
     """
     Asynchronously infers a missing value for a specific field in a DataFrame row using a local LLM based on the 'Description' field.
 
@@ -41,12 +42,12 @@ Description:
 {description}
 
 Your response should be just the value of {field}, without any additional text.
-Your response should be just the value of {field}, without any additional text. 
 """
 
     payload = {
         'model': model_name,
         'prompt': prompt,
+        'api_key': API_KEY,
     }
 
     url = f"{base_url}/api/generate"
@@ -87,7 +88,7 @@ Your response should be just the value of {field}, without any additional text.
         logger.error(f"Index {index}: Error inferring {field}: {e}")
         return index, field, None
 
-async def infer_missing_values_in_dataframe(df, fields_to_infer=None, description_field='Description', base_url=BASE_URL, model_name=MODEL_NAME):
+async def infer_missing_values_in_dataframe(df, fields_to_infer=None, description_field='Description', base_url:str=BASE_URL, model_name:str=MODEL_NAME,api_key:str=API_KEY):
     """
     Asynchronously infers missing values in the DataFrame using the local LLM based on the 'Description' field.
 
@@ -97,6 +98,7 @@ async def infer_missing_values_in_dataframe(df, fields_to_infer=None, descriptio
     - description_field: Name of the field containing the description.
     - base_url: URL to your local LLM API.
     - model_name: Name of the LLM model to use.
+    - api_key: api key for llm endpoint
 
     Returns:
     - A DataFrame with missing values inferred where possible.
@@ -117,7 +119,7 @@ async def infer_missing_values_in_dataframe(df, fields_to_infer=None, descriptio
             for field in fields_to_infer:
                 if pd.isna(row.get(field)):
                     task = asyncio.ensure_future(
-                        infer_missing_value(session, row, index, field, base_url, model_name)
+                        infer_missing_value(session, row, index, field, base_url, model_name,api_key)
                     )
                     tasks.append(task)
 
