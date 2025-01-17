@@ -1,35 +1,23 @@
 import gradio as gr
-import pandas as pd
-import numpy as np
+import requests
+import json
 
-# Import your inference functions
-from src.inference import (
-    make_inference_nn,
-    get_unique_job_titles,
-    load_scaler,
-    load_target_encoder,
-    load_model_nn,
-)
+# FastAPI endpoint URL
+API_URL = "http://localhost:9988"
 
-# Load models and preprocessors
-prefix = ""  # Adjust the prefix if needed
-
-# Load the scaler
-scaler = load_scaler(prefix=prefix)
-
-# Load the target encoder
-te = load_target_encoder(prefix=prefix)
-
-# Load the trained Neural Network model
-model_nn = load_model_nn(prefix=prefix)
-
-# Load unique job titles
-unique_job_titles = get_unique_job_titles(prefix=prefix)
+# Get unique job titles from the API
+def get_job_titles():
+    response = requests.get(f"{API_URL}/job_titles")
+    if response.status_code == 200:
+        return response.json()["job_titles"]
+    return []
 
 # Define the education levels
 education_levels = ["Bachelor's", "Master's", "PhD"]
 
-# Define the prediction function
+# Get unique job titles
+unique_job_titles = get_job_titles()
+
 def predict_salary(age, education_level, job_title, years_of_experience):
     # Frontend validation
     if age < 18 or age > 65:
@@ -41,34 +29,41 @@ def predict_salary(age, education_level, job_title, years_of_experience):
     if years_of_experience > max_experience:
         return f"Error: Years of Experience cannot exceed {max_experience} years for the given age."
 
-    # Validate job title
-    if job_title not in unique_job_titles:
-        return f"Error: Invalid job title selected."
-
-    # Create a DataFrame from the input data
-    data = pd.DataFrame({
-        "Age": [age],
-        "Education Level": [education_level],
-        "Job Title": [job_title],
-        "Years of Experience": [years_of_experience],
-    })
+    # Prepare the request data
+    input_data = {
+        "age": age,
+        "education_level": education_level,
+        "job_title": job_title,
+        "years_of_experience": years_of_experience
+    }
 
     try:
-        # Make prediction
-        prediction = make_inference_nn(
-            input_data=data,
-            prefix=prefix,
-            scaler=scaler,
-            te=te,
-            model_nn=model_nn
-        )
-        predicted_salary = prediction[0][0]
-        # Return the prediction as a formatted string
-        return f"${predicted_salary:,.2f}"
+        # Make prediction using the FastAPI endpoint
+        response = requests.post(f"{API_URL}/predict", json=input_data)
+        if response.status_code == 200:
+            result = response.json()
+            return f"${result['predicted_salary']:,.2f}"
+        else:
+            return f"Error: {response.json()['detail']}"
     except Exception as e:
         return f"Error during prediction: {e}"
 
-# Create the Gradio interface
+def get_recent_predictions():
+    try:
+        response = requests.get(f"{API_URL}/predictions?limit=5")
+        if response.status_code == 200:
+            predictions = response.json()
+            return [[
+                str(p["timestamp"]),
+                p["age"],
+                p["education_level"],
+                p["job_title"],
+                p["years_of_experience"],
+                f"${p['predicted_salary']:,.2f}"
+            ] for p in predictions]
+    except Exception as e:
+        return [[f"Error fetching predictions: {str(e)}"]]
+
 def create_gradio_interface():
     with gr.Blocks() as demo:
         gr.Markdown("# Salary Prediction App")
@@ -108,7 +103,6 @@ def create_gradio_interface():
             )
 
         predict_button = gr.Button("Predict Salary")
-
         output = gr.Textbox(
             label="Prediction Output",
             placeholder="The predicted salary will appear here.",
@@ -116,16 +110,22 @@ def create_gradio_interface():
             interactive=False
         )
 
-        def on_predict(
-            age, education_level, job_title, years_of_experience
-        ):
-            result = predict_salary(
-                age,
-                education_level,
-                job_title,
-                years_of_experience
-            )
-            return result
+        gr.Markdown("## Recent Predictions")
+        prediction_history = gr.Dataframe(
+            headers=[
+                "Time", "Age", "Education Level", 
+                "Job Title", "Years of Experience", 
+                "Predicted Salary"
+            ],
+            value=get_recent_predictions(),
+            row_count=5,
+            interactive=False
+        )
+
+        def on_predict(age, education_level, job_title, years_of_experience):
+            result = predict_salary(age, education_level, job_title, years_of_experience)
+            predictions = get_recent_predictions()
+            return result, predictions
 
         predict_button.click(
             on_predict,
@@ -135,11 +135,11 @@ def create_gradio_interface():
                 job_title_input,
                 years_of_experience_input
             ],
-            outputs=output
+            outputs=[output, prediction_history]
         )
 
     return demo
 
 if __name__ == "__main__":
     demo = create_gradio_interface()
-    demo.launch()
+    demo.launch(server_name="0.0.0.0", server_port=7860)
