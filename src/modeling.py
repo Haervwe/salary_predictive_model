@@ -5,10 +5,10 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.dummy import DummyRegressor
 import tensorflow as tf
 import pandas as pd
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Input , Dense, Dropout
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.models import Sequential # type: ignore
+from tensorflow.keras.layers import Input , Dense, Dropout # type: ignore
+from tensorflow.keras.optimizers import Adam # type: ignore
+from tensorflow.keras.callbacks import EarlyStopping # type: ignore
 import seaborn as sns
 import matplotlib.pyplot as plt
 
