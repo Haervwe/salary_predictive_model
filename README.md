@@ -69,9 +69,10 @@ This project implements a machine learning pipeline for salary prediction based 
 ## Model Performance
 
 The Neural Network model achieved:
-- MSE: 451365450.081 (95% CI: [193911315.376, 891479517.642])
-- MAE: 13879.159 (95% CI: [10770.149, 17989.091]) 
-- R²: 0.820 (95% CI: [0.713, 0.904])
+
+- MSE: 417409892.441 (95% CI: [192168452.152, 798936099.324])
+- MAE: 13728.422 (95% CI: [10844.958, 17243.518])
+- R2: 0.834 (95% CI: [0.724, 0.911])
 
 Outperforming both Random Forest and baseline models.
 
