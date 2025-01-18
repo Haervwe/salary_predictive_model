@@ -111,8 +111,7 @@ def compare_models(models_data: Dict[str, Tuple[object, pd.DataFrame, pd.Series]
     file_name = "./plots/error_model_comparison.png"
     plt.savefig(file_name, bbox_inches='tight')
     plt.tight_layout()
-    plt.show()
-    
+    print(f"Model comparison error bar plot saved to {file_name}")
     # 2. Predictions vs Actual scatter plot with confidence bands
     plt.figure(figsize=(15, 5))
     for i, (name, data) in enumerate(results.items(), 1):
@@ -137,7 +136,7 @@ def compare_models(models_data: Dict[str, Tuple[object, pd.DataFrame, pd.Series]
     plt.tight_layout()
     file_name = "./plots/predicted_vs_actual_values_model_comparison.png"
     plt.savefig(file_name, bbox_inches='tight')
-    plt.show()
+    print(f"Model comparison plots saved to {file_name}")   
     
     # 3. Enhanced residuals box plot
     residuals_data = []
@@ -158,7 +157,7 @@ def compare_models(models_data: Dict[str, Tuple[object, pd.DataFrame, pd.Series]
     plt.tight_layout()
     file_name = "./plots/residuals_distribution_model_comparison.png"
     plt.savefig(file_name, bbox_inches='tight')
-    plt.show()
+    print(f"Residuals distribution comparison plot saved to {file_name}")
     
     # Print detailed summary statistics
     print("\nModel Performance Summary with Confidence Intervals:")

@@ -45,7 +45,7 @@ def train_model(normalized_X_train, y_train, prefix: str = ""):
         cv=5,
         scoring='neg_mean_absolute_error',
         n_jobs=-1,
-        verbose=2
+        verbose=1
     )
 
     # Fit Grid Search on the training data
@@ -186,7 +186,6 @@ def train_NN_model(normalized_X_train, y_train, prefix: str = ""):
     os.makedirs('./plots', exist_ok=True)  # Ensure the directory exists
     plot_filename = f'./plots/{prefix}nn_training_loss.png'
     plt.savefig(plot_filename, bbox_inches='tight')
-    plt.show()
     plt.close()
     print(f"Training loss plot saved to {plot_filename}")
 

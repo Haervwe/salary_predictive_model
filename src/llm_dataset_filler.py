@@ -13,7 +13,7 @@ BASE_URL = 'http://localhost:11434'  # Replace with your actual server URL and p
 MODEL_NAME = 'hermes3:8b-llama3.1-q6_K'       # Replace with your model name
 API_KEY = ""  # Replace with your API key
 
-async def infer_missing_value(session, row, index, field, base_url=BASE_URL, model_name=MODEL_NAME, api_key=API_KEY):
+async def infer_missing_value(session, row, index, field, base_url=BASE_URL, model_name=MODEL_NAME, api_key=API_KEY,debug:bool=False):
     """
     Asynchronously infers a missing value for a specific field in a DataFrame row using a local LLM based on the 'Description' field.
 
@@ -47,7 +47,7 @@ Your response should be just the value of {field}, without any additional text.
     payload = {
         'model': model_name,
         'prompt': prompt,
-        'api_key': API_KEY,
+        'api_key': api_key,
     }
 
     url = f"{base_url}/api/generate"
@@ -60,7 +60,8 @@ Your response should be just the value of {field}, without any additional text.
 
             content_type = response.headers.get('Content-Type', '')
             if 'application/x-ndjson' in content_type:
-                logger.debug(f"Index {index}: Received NDJSON response for {field}.")
+                if debug:
+                    logger.debug(f"Index {index}: Received NDJSON response for {field}.")
 
                 # Read the NDJSON response line by line
                 inferred_value = ''
@@ -77,9 +78,9 @@ Your response should be just the value of {field}, without any additional text.
                 # Fallback if not NDJSON
                 data = await response.json()
                 inferred_value = data.get('response', '').strip()
-
-            logger.debug(f"Index {index}: Inferred {field}: {inferred_value}")
-
+            if debug:
+                logger.debug(f"Index {index}: Inferred {field}: {inferred_value}")
+            
             if 'Not found' in inferred_value or inferred_value.lower() == 'not found' or inferred_value == '':
                 return index, field, None  # The field was not found in the description
             else:
@@ -88,7 +89,7 @@ Your response should be just the value of {field}, without any additional text.
         logger.error(f"Index {index}: Error inferring {field}: {e}")
         return index, field, None
 
-async def infer_missing_values_in_dataframe(df, fields_to_infer=None, description_field='Description', base_url:str=BASE_URL, model_name:str=MODEL_NAME,api_key:str=API_KEY):
+async def infer_missing_values_in_dataframe(df, fields_to_infer=None, description_field='Description', base_url:str=BASE_URL, model_name:str=MODEL_NAME,api_key:str=API_KEY,debug:bool=False):
     """
     Asynchronously infers missing values in the DataFrame using the local LLM based on the 'Description' field.
 
@@ -110,8 +111,8 @@ async def infer_missing_values_in_dataframe(df, fields_to_infer=None, descriptio
 
     # Identify rows with missing values, excluding the description field itself
     missing_data_df = df[df.drop(columns=[description_field]).isnull().any(axis=1)]
-
-    logger.debug(f"Total rows with missing values: {len(missing_data_df)}")
+    if debug:
+        logger.debug(f"Total rows with missing values: {len(missing_data_df)}")
 
     tasks = []
     async with aiohttp.ClientSession() as session:
@@ -133,13 +134,16 @@ async def infer_missing_values_in_dataframe(df, fields_to_infer=None, descriptio
             if field in ['Age', 'Years of Experience', 'Salary']:
                 try:
                     df.at[index, field] = float(inferred_value)
-                    logger.debug(f"Index {index}: Updated {field} with value {inferred_value}")
+                    if debug:
+                        logger.debug(f"Index {index}: Updated {field} with value {inferred_value}")
                 except ValueError:
                     logger.error(f"Index {index}: Could not convert '{inferred_value}' to a number for field '{field}'.")
             else:
                 df.at[index, field] = inferred_value
-                logger.debug(f"Index {index}: Updated {field} with value {inferred_value}")
+                if debug:
+                    logger.debug(f"Index {index}: Updated {field} with value {inferred_value}")
         else:
-            logger.debug(f"Index {index}: Could not infer {field}.")
+            if debug:
+                logger.debug(f"Index {index}: Could not infer {field}.")
 
     return df

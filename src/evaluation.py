@@ -29,7 +29,8 @@ def evaluate_model(normalized_X_test: pd.DataFrame, y_test: pd.Series,
     plt.title('Distribution of Residuals')
     plt.xlabel('Residuals')
     plt.ylabel('Frequency')
-    plt.show()
+    plt.savefig('plots/distribution_of_residuals.png', bbox_inches='tight')
+    print("Distribution of Residuals plot saved to 'plots/distribution_of_residuals.png'")
     plt.close()
 
     # Plot residuals vs. predicted values
@@ -39,7 +40,8 @@ def evaluate_model(normalized_X_test: pd.DataFrame, y_test: pd.Series,
     plt.title('Residuals vs. Predicted Salaries')
     plt.xlabel('Predicted Salaries')
     plt.ylabel('Residuals')
-    plt.show()
+    plt.savefig('plots/residuals_vs_predicted_salaries.png', bbox_inches='tight')
+    print("Residuals vs. Predicted Salaries plot saved to 'plots/residuals_vs_predicted_salaries.png'")
     plt.close()
     
     # Initialize the explainer with the Random Forest model
@@ -49,19 +51,26 @@ def evaluate_model(normalized_X_test: pd.DataFrame, y_test: pd.Series,
     shap_values = explainer.shap_values(normalized_X_test)
 
     # Plot the summary plot
-    shap.summary_plot(shap_values, normalized_X_test, plot_type='bar')
+    shap.summary_plot(shap_values, normalized_X_test, plot_type='bar', show=False)
+    plt.savefig('plots/shap_summary_plot_rf.png', bbox_inches='tight')
+    print("SHAP Summary Plot saved to 'plots/shap_summary_plot_rf.png'")
+    plt.close()
     
     train_data = normalized_X_train.copy()
     train_data['Salary'] = y_train
 
     # Pairplot
     sns.pairplot(train_data)
-    plt.show()
+    plt.savefig('plots/pairplot.png', bbox_inches='tight')
+    print("Pairplot saved to 'plots/pairplot.png'")
+    plt.close()
 
     # Correlation heatmap
     corr_matrix = train_data.corr()
     sns.heatmap(corr_matrix, annot=True)
-    plt.show()
+    plt.savefig('plots/correlation_heatmap.png', bbox_inches='tight')
+    print("Correlation heatmap saved to 'plots/correlation_heatmap.png'")
+    plt.close()
     
     # Calculate and display performance metrics after hyperparameter tuning
     print("Random Forest Regressor Performance After Hyperparameter Tuning:")
@@ -107,7 +116,8 @@ def evaluate_NN_model(normalized_X_test: pd.DataFrame, y_test: pd.Series,
     plt.title('Distribution of Residuals (Neural Network)')
     plt.xlabel('Residuals')
     plt.ylabel('Frequency')
-    plt.show()
+    plt.savefig('plots/distribution_of_residuals_nn.png', bbox_inches='tight')
+    print("Distribution of Residuals (Neural Network) plot saved to 'plots/distribution_of_residuals_nn.png'")
     plt.close()
     
     # Plot residuals vs. predicted values
@@ -117,8 +127,10 @@ def evaluate_NN_model(normalized_X_test: pd.DataFrame, y_test: pd.Series,
     plt.title('Residuals vs. Predicted Salaries (Neural Network)')
     plt.xlabel('Predicted Salaries')
     plt.ylabel('Residuals')
-    plt.show()
+    plt.savefig('plots/residuals_vs_predicted_salaries_nn.png', bbox_inches='tight')
+    print("Residuals vs. Predicted Salaries (Neural Network) plot saved to 'plots/residuals_vs_predicted_salaries_nn.png'")
     plt.close()
+
     
 
     
@@ -141,8 +153,10 @@ def evaluate_NN_model(normalized_X_test: pd.DataFrame, y_test: pd.Series,
         shap_values = explainer.shap_values(test_samples, nsamples=min(50, nsamples)) #nsamples parameter
 
 
-        shap.summary_plot(shap_values, normalized_X_test.iloc[sample_indices], plot_type="bar")
-
+        shap.summary_plot(shap_values, normalized_X_test.iloc[sample_indices], plot_type="bar", show=False)
+        plt.savefig('plots/shap_summary_plot_nn.png', bbox_inches='tight')
+        print("SHAP Summary Plot (Neural Network) saved to 'plots/shap_summary_plot_nn.png'")
+        plt.close()
     except Exception as e:
         print(f"SHAP analysis failed with error: {str(e)}")
     
