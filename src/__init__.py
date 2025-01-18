@@ -10,3 +10,4 @@ from . import inference
 from . import inference_jupyter_form
 from . import db_model
 from . import database
+from . import feature_visualization

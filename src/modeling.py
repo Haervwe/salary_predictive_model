@@ -142,6 +142,8 @@ def train_NN_model(normalized_X_train, y_train, prefix: str = ""):
     - model_nn: Trained Neural Network model.
     """
     optimizer = Adam(learning_rate=0.001)
+    #Huber loss to reduce impact of outliers
+    loss=tf.keras.losses.Huber(delta=1.0)
     # Define the model
     model_nn = Sequential()
     # Add an Input layer specifying the shape
@@ -161,7 +163,7 @@ def train_NN_model(normalized_X_train, y_train, prefix: str = ""):
     )
 
     # Compile the model
-    model_nn.compile(optimizer=optimizer, loss='mean_squared_error')
+    model_nn.compile(optimizer=optimizer, loss=loss)
 
     # Train the model
     history = model_nn.fit(

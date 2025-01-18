@@ -2,7 +2,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler ,RobustScaler
 import category_encoders as ce
 import joblib
 import os
@@ -32,9 +32,9 @@ def split_data(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFra
 def normalize_train_data(
     X_train: pd.DataFrame, 
     y_train: pd.Series, 
-    scaler: MinMaxScaler | StandardScaler, 
+    scaler: MinMaxScaler | StandardScaler | RobustScaler, 
     prefix: str = ""
-) -> tuple[pd.DataFrame, ce.TargetEncoder, MinMaxScaler | StandardScaler]:
+) -> tuple[pd.DataFrame, ce.TargetEncoder, MinMaxScaler | StandardScaler | RobustScaler]:
     """
     Preprocesses the training data by encoding categorical variables,
     normalizing numerical variables, and target encoding 'Job Title'.

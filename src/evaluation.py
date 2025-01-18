@@ -59,18 +59,7 @@ def evaluate_model(normalized_X_test: pd.DataFrame, y_test: pd.Series,
     train_data = normalized_X_train.copy()
     train_data['Salary'] = y_train
 
-    # Pairplot
-    sns.pairplot(train_data)
-    plt.savefig('plots/pairplot.png', bbox_inches='tight')
-    print("Pairplot saved to 'plots/pairplot.png'")
-    plt.close()
 
-    # Correlation heatmap
-    corr_matrix = train_data.corr()
-    sns.heatmap(corr_matrix, annot=True)
-    plt.savefig('plots/correlation_heatmap.png', bbox_inches='tight')
-    print("Correlation heatmap saved to 'plots/correlation_heatmap.png'")
-    plt.close()
     
     # Calculate and display performance metrics after hyperparameter tuning
     print("Random Forest Regressor Performance After Hyperparameter Tuning:")
