@@ -57,7 +57,7 @@ This project implements a machine learning pipeline for salary prediction based 
 
 ## Key Features
 
-- Missing value imputation using local LLM
+- Missing value imputation using local LLM or any OpenAI compatible endpoint
 - Feature engineering pipeline
 - Model experimentation workflow
 - Interactive web interface
