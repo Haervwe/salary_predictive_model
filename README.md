@@ -122,6 +122,20 @@ The data preprocessing pipeline consists of several key stages to prepare the da
 ### Model Comparison
 Compare the performance of all models using metrics such as MSE, MAE, and R2 to determine the best-performing model.
 
+### Model Performance Comparison
+
+#### MSE Comparison
+
+![MSE Comparison](./plots/mse_comparison.png)
+
+#### MAE Comparison
+
+![MAE Comparison](./plots/mae_comparison.png)
+
+#### R2 Comparison
+
+![R2 Comparison](./plots/r2_comparison.png)
+
 ### Inference witget
 Simple inference witget to test the NN model.
 
