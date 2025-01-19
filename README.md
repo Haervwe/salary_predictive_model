@@ -28,7 +28,7 @@ This project implements a machine learning pipeline to predict an individual's s
     ```
     The API will be available at http://localhost:9988
 
-    c. The inference witget at the end of the Jupyter Notebook
+    c. The inference widget at the end of the Jupyter Notebook
 
 ## Project Structure
 
@@ -122,22 +122,25 @@ The data preprocessing pipeline consists of several key stages to prepare the da
 ### Model Comparison
 Compare the performance of all models using metrics such as MSE, MAE, and R2 to determine the best-performing model.
 
-### Model Performance Comparison
+### Model Performance Comparison Plots
 
-#### MSE Comparison
+#### Predicted vs. Actual Values
 
-![MSE Comparison](./plots/mse_comparison.png)
+![Predicted vs. Actual Values](./plots/predicted_vs_actual_values_model_comparison.png)
 
-#### MAE Comparison
+#### Error Comparison
 
-![MAE Comparison](./plots/mae_comparison.png)
+![Error Comparison](./plots/error_model_comparison.png)
 
-#### R2 Comparison
+#### Residuals Distribution
 
-![R2 Comparison](./plots/r2_comparison.png)
+![Residuals Distribution](./plots/residuals_distribution_model_comparison.png)
 
-### Inference witget
-Simple inference witget to test the NN model.
+### Model Selection
+Based on the results of the comparison, the Neural Network Model is used for inference.
+
+### Inference Widget
+Simple inference widget to test the NN model.
 
 ## API Documentation
 
