@@ -42,7 +42,7 @@ def normalize_train_data(
     Parameters:
     - X_train: Features of the training set.
     - y_train: Target variable of the training set.
-    - scaler: Scaler object (MinMaxScaler or StandardScaler).
+    - scaler: Scaler object (MinMaxScaler, RobustScaller or StandardScaler).
     - prefix: Prefix for saved files (default is "").
 
     Returns:
