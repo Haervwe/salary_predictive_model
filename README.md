@@ -7,7 +7,7 @@ This project implements a machine learning pipeline to predict an individual's s
 
 1. Clone and setup:
     ```sh
-    git clone https://github.com/haervwe/salary_predictive_model.git
+    git clone https://github.com/Haervwe/salary_predictive_model.git
     cd salary_predictive_model
     python3 -m venv .venv
     source .venv/bin/activate
